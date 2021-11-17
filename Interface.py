@@ -11,7 +11,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 import pyvisa
-from Detection_synchrone import *
+from DetectionSynchrone import *
 import serial
 
 plt.style.use('seaborn')
