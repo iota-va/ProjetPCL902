@@ -109,3 +109,38 @@ class DetectionSynchrone :
 			self.instrument.write("SCAL 21")
 		if v_level <= 50.e-9 :
 			self.instrument.write("SCAL 22")
+	
+	def initialize_lockin(self, filt, harm, current, voltage, shield, current_mod, source):
+
+		# DEFAULT SETTINGS FOR THE self
+		# Set set the voltage input mode to : A (i=0) A-B (i=1)
+
+		self.instrument.write("ISRC " + voltage)
+
+		# Set the Current to : AC (i=0) , DC (i=1) (c'est metal(AC/DC))
+		self.instrument.write("ICPL " + current_mod)
+
+		# Setting the harmonic to the 0
+		self.instrument.write("HARM " + str(harm))
+
+		# Set the Filter Slope; 6 (0), 12 (1), 18 (2),  24 (3)
+		if filt == 6:
+			i = 0
+		if filt == 12:
+			i = 1
+		if filt == 18:
+			i = 2
+		if filt == 24:
+			i = 3
+		self.instrument.write("OFSL " + str(i))
+
+		# Set the input shield to : float(i=0) , ground(i=1)
+		self.instrument.write("IGND " + shield)
+
+		# Set the current range to 10micA or 1nA
+		self.instrument.write("ICUR " + str(current))
+
+		# Set reference source
+		self.instrument.write("RSRC " + source)
+
+		self.instrument.write("PHAS -180")
