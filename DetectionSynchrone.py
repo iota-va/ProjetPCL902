@@ -2,17 +2,17 @@ import pyvisa
 
 class DetectionSynchrone :
 
-    def __init__(self, instrument):
-        self.instrument = instrument
-    
-    def lockin_set_freq(self, f):
-        buf = self.instrument.write('FREQ ' + str(f))
-    
-    	def lockin_time_const(self,time):
-		#Set the Time Constant; 1microS (0), <=> 30 ks (21)
-		#List of Time Constants:: 1micros(0), 3micros(1), 1ms(6), 3ms(7),
-		# 10ms(8), 30ms(9), 100ms(10), 300ms(11), 1s(12), 3s(13),
-		# 10s(14), 30s(15)
+	def __init__(self, instrument):
+		self.instrument = instrument
+
+	def lockin_set_freq(self, f):
+		buf = self.instrument.write('FREQ ' + str(f))
+
+	def lockin_time_const(self,time):
+	#Set the Time Constant; 1microS (0), <=> 30 ks (21)
+	#List of Time Constants:: 1micros(0), 3micros(1), 1ms(6), 3ms(7),
+	# 10ms(8), 30ms(9), 100ms(10), 300ms(11), 1s(12), 3s(13),
+	# 10s(14), 30s(15)
 		if 3.e-6 > time and time >= 1.e-6 :
 			buf=self.instrument.write("OFLT 0")
 		if 10.e-6 > time and time >= 3.e-6 :
