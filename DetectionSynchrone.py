@@ -57,3 +57,55 @@ class DetectionSynchrone :
 			buf=self.instrument.write("OFLT 20")
 		if time >= 300. :
 			buf=self.instrument.write("OFLT 21")
+
+	def lockin_sensitivity(self,v_level):
+		#Set the Sensitivity; 1V (0), <=> 1nV (27)
+		#List of Sensitivities: 1V(0), 500mV(1), 200mV(2),
+		# 10mV(6), 5mV(7), 2mV(8), 1mV(9)
+		# 500microV(10),200microV(11),100microV(12)
+		if 0.5 < v_level and v_level <= 1 :
+			self.instrument.write("SCAL 0")
+		if 0.2 < v_level and v_level <= 0.5 :
+			self.instrument.write("SCAL 1")
+		if 0.1 < v_level and v_level <= 0.2 :
+			self.instrument.write("SCAL 2")
+		if 0.05 < v_level and v_level <= 0.1 :
+			self.instrument.write("SCAL 3")
+		if 0.02 < v_level and v_level <= 0.05 :
+			self.instrument.write("SCAL 4")
+		if 0.01 < v_level and v_level <= 0.02 :
+			self.instrument.write("SCAL 5")
+		if 0.005 < v_level and v_level <= 0.01 :
+			self.instrument.write("SCAL 6")
+		if 0.002 < v_level and v_level <= 0.005 :
+			self.instrument.write("SCAL 7")
+		if 0.001 < v_level and v_level <= 0.002 :
+			self.instrument.write("SCAL 8")
+		if 500.e-6 < v_level and v_level <= 0.001 :
+			self.instrument.write("SCAL 9")
+		if 200.e-6 < v_level and v_level <= 500.e-6 :
+			self.instrument.write("SCAL 10")
+		if 100.e-6 < v_level and v_level <= 200.e-6 :
+			self.instrument.write("SCAL 11")
+		if 50.e-6 < v_level and v_level <= 100.e-6 :
+			self.instrument.write("SCAL 12")
+		if 20.e-6 < v_level and v_level <= 50.e-6 :
+			self.instrument.write("SCAL 13")
+		if 10.e-6 < v_level and v_level <= 20.e-6 :
+			self.instrument.write("SCAL 14")
+		if 5.e-6 < v_level and v_level <= 10.e-6 :
+			self.instrument.write("SCAL 15")
+		if 2.e-6 < v_level and v_level <= 5.e-6 :
+			self.instrument.write("SCAL 16")
+		if 1.e-6 < v_level and v_level <= 2.e-6 :
+			self.instrument.write("SCAL 17")
+		if 0.5e-6 < v_level and v_level <= 1.e-6 :
+			self.instrument.write("SCAL 18")
+		if 0.2e-6 < v_level and v_level <= 0.5e-6 :
+			self.instrument.write("SCAL 19")
+		if 0.1e-6 < v_level and v_level <= 0.2e-6 :
+			self.instrument.write("SCAL 20")
+		if 0.05e-6 < v_level and v_level <= 0.1e-6 :
+			self.instrument.write("SCAL 21")
+		if v_level <= 50.e-9 :
+			self.instrument.write("SCAL 22")
