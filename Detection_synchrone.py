@@ -1,6 +1,6 @@
 import pyvisa
 
-class DetectionSynchrone :
+class Detection_synchrone :
 
 	def __init__(self, instrument):
 		self.instrument = instrument
