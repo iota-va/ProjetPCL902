@@ -43,16 +43,16 @@ class Interface:
 
         self.v1, self.v2, self.v3 = StringVar(), StringVar(), StringVar()
 
-        Label(self.tabMotor, text='Angle', state=DISABLED, font=24).place(x=150, y=80)
-        self.angle = Entry(self.tabMotor, textvariable=self.v1, justify='center', width=10, font=24)
+        Label(self.tabMotor, text='Angle', font=24).place(x=150, y=80)
+        self.angle = Entry(self.tabMotor, state=DISABLED, textvariable=self.v1, justify='center', width=10, font=24)
         self.angle.place(x=220, y=80, height=30)
 
-        Label(self.tabMotor, text='Pas', state=DISABLED, font=24).place(x=160, y=180)
-        self.pas = Entry(self.tabMotor, textvariable=self.v2, justify='center', width=10, font=24)
+        Label(self.tabMotor, text='Pas', font=24).place(x=160, y=180)
+        self.pas = Entry(self.tabMotor, state=DISABLED, textvariable=self.v2, justify='center', width=10, font=24)
         self.pas.place(x=220, y=180, height=30)
 
-        Label(self.tabMotor, text="Step", state=DISABLED, font=24).place(x=155, y=280)
-        self.step = Entry(self.tabMotor, textvariable=self.v3, justify='center', width=10, font=24)
+        Label(self.tabMotor, text="Step", font=24).place(x=155, y=280)
+        self.step = Entry(self.tabMotor, state=DISABLED, textvariable=self.v3, justify='center', width=10, font=24)
         self.step.place(x=220, y=280, height=30)
 
         self.applyMotor = Button(self.tabMotor, text="Apply", state=DISABLED, command=self.Motor, width=20, height=5, font=24)
