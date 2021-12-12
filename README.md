@@ -1,6 +1,54 @@
-# ProjetPCL902
+#ProjetPCL902
 Partie code pour le projet tutoré de PCL902
 
 Auteurs : ALFONSO Vincent, DEPELSEMAKER Karl, KESTEL Samuel
 
-Ce dossier comporte quattre fichier python
+Professeur : HORNY Nicolas
+
+Ce dossier comporte quattre fichiers python et un dossier venv pour l'environnement virtuel.
+
+## Motor.py
+
+`Motor.py` est la librairie servant à controller le moteur pas-à-pas connecté à un Arduino.
+
+On peut faire tourner le moteur dans un sens ou dans l'autre grâce aux méthodes `h()` (horaire) et `a()` (antihoraire).
+
+Le mouvement pour les mesures est effectué à l'aide de la méthode `mesure_auto()` qui prend en compte l'initialisation et le déplacement horaire et antihoraire du moteur.
+
+## Detection_synchrone.py
+
+Cette librairie permet la communication avec la détection synchrone.
+
+La méthode `lockin_set_freq()` permet de sélectionner la fréquence cible.
+
+`lockin_time_const()` est utilisée pour choisir le temps d'intégration.
+
+Pour sélectionner la sensibilté voulue, ce sera la méthode `lockin_sensitivity()`.
+
+La dernière méthode `initialize_lockin()` permet de changer l'harmonique, le courant, la tension, le mode du courant, l'offset (mV), l'amplitude (mV) et la source utilisée. 
+
+## Interface.py
+
+C'est avec ce fichier que l'expérience est contrôlée. L'interface est divisée en quattre partie :
+
+**Motor** : connecter et entrer les paramètres utilent au moteur.
+
+**Lock-In** : connecter et entrer les paramètres utilent à la détection synchrone.
+
+**Graphic** : faire les mesures et tracer le fit des résultats
+
+**Measure** : affichage des données des mésures et du fit dans un tableau 
+
+## setup.py
+
+`setup.py` est le fichier qui sert à rendre notre interface graphique exécutbale sur Windows. Pour cela il faut lancer le programme.
+
+Un problème a été apercu. Le fichier `pyvisa.resources.resource.pyc` est manquant dans le dossier `dist`. 
+
+Pour régler cela, chercher `pyvisa.resources.resource.py` dans la librairie pyvisa et faire la commande suivante dans une console python :
+
+`import py_compile`
+
+`py_compile.compile("NOM_DU_FICHIER.py")`
+
+Après cela, mettre le fichier obtenu dans `library.zip`.
