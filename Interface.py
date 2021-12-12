@@ -5,7 +5,7 @@ from Detection_synchrone import Detection_synchrone
 import tkinter.font as tkFont
 from Motor import Motor
 import pyvisa
-import pyfirmata as pyf
+import pyfirmata
 from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib.pyplot as plt
@@ -43,15 +43,15 @@ class Interface:
 
         self.v1, self.v2, self.v3 = StringVar(), StringVar(), StringVar()
 
-        Label(self.tabMotor, text='Angle', font=24).place(x=150, y=80)
+        Label(self.tabMotor, text='Angle', state=DISABLED, font=24).place(x=150, y=80)
         self.angle = Entry(self.tabMotor, textvariable=self.v1, justify='center', width=10, font=24)
         self.angle.place(x=220, y=80, height=30)
 
-        Label(self.tabMotor, text='Pas', font=24).place(x=160, y=180)
+        Label(self.tabMotor, text='Pas', state=DISABLED, font=24).place(x=160, y=180)
         self.pas = Entry(self.tabMotor, textvariable=self.v2, justify='center', width=10, font=24)
         self.pas.place(x=220, y=180, height=30)
 
-        Label(self.tabMotor, text="Step", font=24).place(x=155, y=280)
+        Label(self.tabMotor, text="Step", state=DISABLED, font=24).place(x=155, y=280)
         self.step = Entry(self.tabMotor, textvariable=self.v3, justify='center', width=10, font=24)
         self.step.place(x=220, y=280, height=30)
 
@@ -110,7 +110,6 @@ class Interface:
         Label(self.tabLockin, text='Current', font=24).place(x=490, y=67)
         self.current = Spinbox(self.tabLockin, state=DISABLED, textvariable=self.w6, values=('1MEG', '100MEG'), justify='center',
                                width=10, font=24)
-        # self.current = Entry(self.tabLockin, textvariable=self.w6, justify='center', width=10, font=(24))
         self.current.place(x=570, y=67)
 
         Label(self.tabLockin, text='Offset', font=24).place(x=495, y=134)
@@ -121,13 +120,11 @@ class Interface:
         Label(self.tabLockin, text='Voltage', font=24).place(x=485, y=201)
         self.voltage = Spinbox(self.tabLockin, state=DISABLED, textvariable=self.w8, values=('A', 'A-B'), justify='center', width=10,
                                font=24)
-        # self.voltage = Entry(self.tabLockin, textvariable=self.w8, justify='center', width=10, font=(24))
         self.voltage.place(x=570, y=201)
 
         Label(self.tabLockin, text='Current Mode', font=24).place(x=445, y=268)
         self.currentMode = Spinbox(self.tabLockin, state=DISABLED, textvariable=self.w9, values=('AC', 'DC'), justify='center',
                                    width=10, font=24)
-        # self.currentMode = Entry(self.tabLockin, textvariable=self.w9, justify='center', width=10, font=(24))
         self.currentMode.place(x=570, y=268)
 
         Label(self.tabLockin, text='Source', font=24).place(x=490, y=335)
@@ -163,8 +160,8 @@ class Interface:
         self.canvas.place(x=10, y=70, width=900)
         self.ax.plot(self.xs, self.ys)
         self.ax.grid()
-        self.fig.savefig('temp.png')
-        self.photo = PhotoImage(master=self.tabGraph, file='temp.png')
+        self.fig.savefig('courbe.png')
+        self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
         self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
         self.canvas.update()
 
@@ -209,7 +206,7 @@ class Interface:
 
         if self.onOffMotor['bg'] == 'red':
             try:
-                arduino = pyf.Arduino('COM5')
+                arduino = pyfirmata.Arduino('COM5')
             except:
                 messagebox.showinfo('Error', 'Arduino not found')
 
@@ -223,6 +220,9 @@ class Interface:
                 self.stepPlus['state'] = NORMAL
                 self.continueMinus['state'] = NORMAL
                 self.continuePlus['state'] = NORMAL
+                self.pas['state'] = NORMAL
+                self.step['state'] = NORMAL
+                self.angle['state'] = NORMAL
 
         else:
             arduino.exit()
@@ -234,6 +234,9 @@ class Interface:
             self.stepPlus['state'] = DISABLED
             self.continueMinus['state'] = DISABLED
             self.continuePlus['state'] = DISABLED
+            self.pas['state'] = DISABLED
+            self.step['state'] = DISABLED
+            self.angle['state'] = DISABLED
 
         return
 
@@ -323,8 +326,8 @@ class Interface:
             self.ys.append(float(self.y))
             self.ax.plot(self.xs, self.ys, 'r.', linewidth=1)
             self.ax.grid(visible=True)
-            self.fig.savefig('temp.png')
-            self.photo = PhotoImage(master=self.tabGraph, file='temp.png')
+            self.fig.savefig('courbe.png')
+            self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
             self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
             self.canvas.update()
             #time.sleep(3*self.w4)
@@ -377,8 +380,8 @@ class Interface:
         fit, o = curve_fit(gaussienne, x, y)
 
         self.ax.plot(x, gaussienne(x, fit[0], fit[1], fit[2]), 'b')
-        self.fig.savefig('temp.png')
-        self.photo = PhotoImage(master=self.tabGraph, file='temp.png')
+        self.fig.savefig('courbe.png')
+        self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
         self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
         self.canvas.update()
 
@@ -415,8 +418,8 @@ class Interface:
         self.ys = []
         self.ax.plot(self.xs, self.ys)
         self.ax.grid(visible=True)
-        self.fig.savefig('temp.png')
-        self.photo = PhotoImage(master=self.tabGraph, file='temp.png')
+        self.fig.savefig('courbe.png')
+        self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
         self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
         self.canvas.update()
         return
