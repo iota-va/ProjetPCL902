@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Satu Dec  11 23:30:00 2021
+
+@author: ALFONSO Vincent
+"""
+
 from distutils.core import setup
 import py2exe, os, sys
 
