@@ -1,8 +1,8 @@
-#ProjetPCL902
+# ProjetPCL902
 
 Partie code pour le projet tutoré de PCL902
 
-Auteurs : ALFONSO Vincent, DEPELSEMAKER Karl, KESTEL Samuel
+Auteurs : ALFONSO Vincent, DEPELSEMACKER Karl, KESTEL Samuel
 
 Professeur : HORNY Nicolas
 
