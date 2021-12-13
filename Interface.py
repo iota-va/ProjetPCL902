@@ -18,10 +18,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-global board
-global ds
-
-
 class Interface:
 
     def __init__(self, master):
@@ -65,7 +61,7 @@ class Interface:
         self.applyMotor = Button(self.tabMotor, text="Apply", state=DISABLED, command=self.Motor, width=20, height=5, font=24)
         self.applyMotor.place(x=300, y=400)
 
-        self.onOffMotor = Button(self.tabMotor, text='Deactivated', bg='red', command=self.OnOffMotor, width=20, height=5, font=24)
+        self.onOffMotor = Button(self.tabMotor, text='Deactivated', bg='red', command=self.ComChoice, width=20, height=5, font=24)
         self.onOffMotor.place(x=50, y=400)
 
         self.initMotor = Button(self.tabMotor, text='Initialisation', state=DISABLED, command=lambda: self.ButtonMotor(3), width=20, height=5, font=24)
@@ -208,16 +204,35 @@ class Interface:
         board.mesure_auto(angle=self.v1, pas=self.v2, ti=3 * float(self.timeCste.get()) + 0.1, step=self.v3)
         return
 
-    def OnOffMotor(self):
-        global arduino
+    def ComChoice(self):
 
+        self.com = StringVar()
+
+        self.comChoiceWindow = Toplevel(self.master)
+
+        self.comChoiceWindow.geometry('200x100')
+        self.comChoiceWindow.title('COM')
+        self.comChoiceWindow.resizable(width=False, height=False)
+
+        self.comChoiceEntry = Entry(self.comChoiceWindow, justify='center', textvariable=self.com)
+        self.comChoiceEntry.place(x=40, y=30)
+
+        self.comChoiceButton = Button(self.comChoiceWindow, text='Apply',command=self.OnOffMotor)
+        self.comChoiceButton.place(x=80, y=55)
+
+        return
+
+    def OnOffMotor(self):
+
+        self.comChoiceWindow.destroy()
         if self.onOffMotor['bg'] == 'red':
             try:
-                arduino = pyfirmata.Arduino('COM5')
+                global arduino
+                arduino = pyfirmata.Arduino(self.com)
             except:
                 messagebox.showinfo('Error', 'Arduino not found')
-
             else:
+                global board
                 board = Motor(arduino)
                 self.onOffMotor['text'] = 'Activated'
                 self.onOffMotor['bg'] = 'green'
@@ -244,7 +259,6 @@ class Interface:
             self.pas['state'] = DISABLED
             self.step['state'] = DISABLED
             self.angle['state'] = DISABLED
-
         return
 
     def ButtonMotor(self, button_id):
@@ -266,6 +280,7 @@ class Interface:
             except pyvisa.VisaIOError:
                 messagebox.showinfo('Error', 'Lock-In not found')
             else:
+                global ds
                 ds = Detection_synchrone(rm)
                 self.onOffLockin['bg'] = 'green'
                 self.onOffLockin['text'] = 'Activated'
@@ -320,16 +335,14 @@ class Interface:
 
         self.xs = []
         self.ys = []
-        self.x = -20
-        #self.x = -self.v1
+        self.x = -self.v1
         self.ax.clear()
         self.ax.set_ylabel('Tension (mV)')
         self.ax.set_xlabel('Angle (°)')
 
-        while self.x <= 20:  # Changer -20 par self.v1 pour les vraies mesures
+        while self.x <= self.v1:
             self.xs.append(float(self.x))
-            self.x, self.y = self.x + 1, (100/50/(2*np.pi)**0.5)*np.exp(-(self.x)**2/2/50**2)
-            #self.x, self.y = self.x + self.v3, query(ds, 'OUTP? 2')
+            self.x, self.y = self.x + self.v2, rm.query(ds, 'OUTP? 2')
             self.ys.append(float(self.y))
             self.ax.plot(self.xs, self.ys, 'r.', linewidth=1)
             self.ax.grid(visible=True)
@@ -337,7 +350,7 @@ class Interface:
             self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
             self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
             self.canvas.update()
-            #time.sleep(3*self.w4)
+            time.sleep(3*self.w4)
 
         self.numberLines = len(self.xs)
         self.numberColumns = 2
