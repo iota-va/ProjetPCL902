@@ -18,6 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+
 class Interface:
 
     def __init__(self, master):
@@ -30,8 +31,8 @@ class Interface:
         self.notebook = ttk.Notebook(master)
         self.notebook.pack()
 
-        self.tabMotor, self.tabLockin, self.tabGraph, self.tabMeasure= ttk.Frame(self.notebook, width=810, height=690), ttk.Frame(self.notebook, width=810,
-                                                                                                                                                 height=690), ttk.Frame(
+        self.tabMotor, self.tabLockin, self.tabGraph, self.tabMeasure = ttk.Frame(self.notebook, width=810, height=690), ttk.Frame(self.notebook, width=810,
+                                                                                                                                   height=690), ttk.Frame(
             self.notebook,
             width=810,
             height=690), ttk.Frame(
@@ -171,7 +172,7 @@ class Interface:
         # %% Measure
 
         self.m_angle = Entry(self.tabMeasure, justify='center', bg='#B8B6B5')
-        self.m_angle.insert(0,'Angle (°)')
+        self.m_angle.insert(0, 'Angle (°)')
         self.m_angle.grid(row=0, column=0)
 
         self.m_tension = Entry(self.tabMeasure, justify='center', bg='#B8B6B5')
@@ -180,7 +181,7 @@ class Interface:
 
         self.sigma = Entry(self.tabMeasure, justify='center', bg='#B8B6B5')
         self.sigma.insert(0, 'σ (°)')
-        self.sigma.grid(row = 0, column=2)
+        self.sigma.grid(row=0, column=2)
 
         self.amplitude = Entry(self.tabMeasure, justify='center', bg='#B8B6B5')
         self.amplitude.insert(0, 'Amplitude (mV.°)')
@@ -217,7 +218,7 @@ class Interface:
         self.comChoiceEntry = Entry(self.comChoiceWindow, justify='center', textvariable=self.com)
         self.comChoiceEntry.place(x=40, y=30)
 
-        self.comChoiceButton = Button(self.comChoiceWindow, text='Apply',command=self.OnOffMotor)
+        self.comChoiceButton = Button(self.comChoiceWindow, text='Apply', command=self.OnOffMotor)
         self.comChoiceButton.place(x=80, y=55)
 
         return
@@ -350,7 +351,7 @@ class Interface:
             self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
             self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
             self.canvas.update()
-            time.sleep(3*self.w4)
+            time.sleep(3 * self.w4)
 
         self.numberLines = len(self.xs)
         self.numberColumns = 2
@@ -359,8 +360,8 @@ class Interface:
         fichier = open('data.txt', 'w')
         fichier.write('Angle')
         fichier.write(' Tension')
-        
-        #Ecriture dans le fichier data.txt des valeurs obtenues
+
+        # Ecriture dans le fichier data.txt des valeurs obtenues
 
         for i in range(self.numberLines):
             fichier.write('\n')
@@ -369,7 +370,7 @@ class Interface:
             fichier.write(str(self.data[1][i]))
         fichier.close()
 
-        #Création du tableau de valeurs
+        # Création du tableau de valeurs
 
         for i in range(self.numberLines):
             line = []
@@ -377,7 +378,7 @@ class Interface:
                 cell = Entry(self.tabMeasure, justify='center')
                 cell.insert(0, round(self.data[0][i], 2))
                 line.append(cell)
-                cell.grid(row=i+1, column=0)
+                cell.grid(row=i + 1, column=0)
             self.data.append(line)
 
         for i in range(self.numberLines):
@@ -386,7 +387,7 @@ class Interface:
                 cell = Entry(self.tabMeasure, justify='center')
                 cell.insert(0, round(self.data[1][i], 3))
                 line.append(cell)
-                cell.grid(row=i+1, column=1)
+                cell.grid(row=i + 1, column=1)
             self.data.append(line)
         return
 
@@ -395,7 +396,7 @@ class Interface:
         x, y = np.loadtxt('data.txt', skiprows=1, unpack=True)
 
         def gaussienne(x, A, sigma, mu):
-            return (A/sigma/(2*np.pi)**0.5)*np.exp(-(x-mu)**2/2/sigma**2)
+            return (A / sigma / (2 * np.pi) ** 0.5) * np.exp(-(x - mu) ** 2 / 2 / sigma ** 2)
 
         fit, o = curve_fit(gaussienne, x, y)
 
