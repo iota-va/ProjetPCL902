@@ -144,7 +144,7 @@ class Interface:
 
         # %% Graphic
 
-        self.app3 = Button(self.tabGraph, text='Start', command=self.Graphic, width=10, height=2, font=24)
+        self.app3 = Button(self.tabGraph, text='Start', command= self.two_funcs(self.Graphic, self.MotorMovement), width=10, height=2, font=24)
         self.app3.place(x=10, y=10)
 
         self.app4 = Button(self.tabGraph, text='Curve Fit', command=self.CurveFit, width=10, height=2, font=24)
@@ -324,6 +324,13 @@ class Interface:
                              offset=self.w7, amp=self.w1)
         return
 
+    def MotorMovement(self):
+
+        self.board.initialisation(self.v1)
+        time.sleep(0.1)
+        self.board.sens_horaire2(self.v1, self.v2, 3 * self.w4, self.v3)
+        return
+
     def Graphic(self):
 
         self.xs = []
@@ -333,9 +340,10 @@ class Interface:
         self.ax.set_ylabel('Tension (mV)')
         self.ax.set_xlabel('Angle (°)')
 
-        self.board.initialisation(self.v1)
+        while self.board.isInitialize != True:
+            time.sleep(0.01)
+
         time.sleep(0.1)
-        self.board.sens_horaire2(self.v1, self.v2, 3*self.w4, self.v3)
 
         while self.x <= 20:
             self.xs.append(float(self.x))
@@ -349,6 +357,9 @@ class Interface:
             self.canvas.update()
             time.sleep(3 * self.w4)
 
+        time.sleep(1)
+        self.board.isInitialize = False
+        self.board.initialisation(self.v1)
         self.numberLines = len(self.xs)
         self.numberColumns = 2
         self.data = [self.xs, self.ys]
@@ -440,6 +451,12 @@ class Interface:
         self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
         self.canvas.update()
         return
+
+    def two_funcs(self, *funcs):
+        def two_funcs(*args, **kwargs):
+            for f in funcs:
+                f(*args, **kwargs)
+        return two_funcs
 
 root = Tk()
 my_gui = Interface(root)
