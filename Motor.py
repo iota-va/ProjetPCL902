@@ -54,6 +54,8 @@ class Motor :
         step = float(step)
         while angle > an:                       #tant que l'angle parcourru n'a pas atteint la valeur souhaité
 
+            time.sleep(ti)
+
             for i in range(0, PAS):             #tant que le pas voulu n'est pas obtenue on fait tourner le moteur (par demi-pas de moteur d'où le float
 
                 if step - int(step) == 0:       # si le code allumage (~borne à allumer) prend une valeur complète
@@ -90,23 +92,20 @@ class Motor :
                         time.sleep(TS)
 
         #fonction de mesure à placer
-            time.sleep(ti)
 
 
 #%% fonction placement angle de départ de mesure
-    def initialisation(self, ai, step):         #reprise de la fonction initialisation avec modif pour tourner dans le sens inverse
+    def initialisation(self, ai):       #reprise de la fonction initialisation avec modif pour tourner dans le sens inverse
+        self.isInitialize = False
         an = 0
-        ts = 0.01
-        TS = 0
-        step = 4
-        step = float(step)
+        step = float(4)
         while ai > an:
             if step - int(step) == 0.5:
 
                 self.instrument.digital[int(step)].write(1)
-                time.sleep(ts)
+                time.sleep(0.01)
                 self.instrument.digital[int(step)].write(0)
-                time.sleep(TS)
+                time.sleep(0)
                 an = an + 0.9
                 step = step - 0.5
 
@@ -115,10 +114,10 @@ class Motor :
                 if step != 4 :
                     self.instrument.digital[int(step)].write(1)
                     self.instrument.digital[int(step) - 1].write(1)
-                    time.sleep(ts)
+                    time.sleep(0.01)
                     self.instrument.digital[int(step)].write(0)
                     self.instrument.digital[int(step) - 1].write(0)
-                    time.sleep(TS)
+                    time.sleep(0)
 
                     an = an + 0.9
                     step = step - 0.5
@@ -127,12 +126,13 @@ class Motor :
                 else:
                     self.instrument.digital[int(step)].write(1)
                     self.instrument.digital[7].write(1)
-                    time.sleep(ts)
+                    time.sleep(0.01)
                     self.instrument.digital[int(step)].write(0)
                     self.instrument.digital[7].write(0)
-                    time.sleep(TS)
+                    time.sleep(0)
                     an = an + 0.9
                     step = 7.5
+        return self.isInitialize == True
 
 
 
@@ -143,8 +143,4 @@ class Motor :
         time.sleep(0.1)
         self.sens_horaire2(2*angle, pas, ti, step)
 
-
-#mesure_auto(45,0.9, 1) test
-
-
-'''board.exit()''' # pour couper la liaison avec l'arduino -> une fois l'expérience finie
+#board.exit()  pour couper la liaison avec l'arduino -> une fois l'expérience finie

@@ -199,10 +199,6 @@ class Interface:
         self.v1 = float(self.angle.get())
         self.v2 = float(self.pas.get())
         self.v3 = float(self.step.get())
-
-        board.h()
-        board.a()
-        board.mesure_auto(angle=self.v1, pas=self.v2, ti=3 * float(self.timeCste.get()) + 0.1, step=self.v3)
         return
 
     def ComChoice(self):
@@ -228,13 +224,11 @@ class Interface:
         self.comChoiceWindow.destroy()
         if self.onOffMotor['bg'] == 'red':
             try:
-                global arduino
-                arduino = pyfirmata.Arduino(self.com)
+                self.arduino = pyfirmata.Arduino(self.com)
             except:
                 messagebox.showinfo('Error', 'Arduino not found')
             else:
-                global board
-                board = Motor(arduino)
+                self.board = Motor(self.arduino)
                 self.onOffMotor['text'] = 'Activated'
                 self.onOffMotor['bg'] = 'green'
                 self.applyMotor['state'] = NORMAL
@@ -248,7 +242,7 @@ class Interface:
                 self.angle['state'] = NORMAL
 
         else:
-            arduino.exit()
+            self.arduino.exit()
             self.onOffMotor['text'] = 'Deactivated'
             self.onOffMotor['bg'] = 'red'
             self.applyMotor['state'] = DISABLED
@@ -264,25 +258,23 @@ class Interface:
 
     def ButtonMotor(self, button_id):
         if button_id == 1:
-            board.h()
+            self.board.h()
         if button_id == 2:
-            board.a()
+            self.board.a()
         if button_id == 3:
-            board.zero()
+            self.board.zero()
         return
 
     def OnOffLockin(self):
 
         if self.onOffLockin['bg'] == 'red':
-            global rm
             try:
-                rm = pyvisa.ResourceManager()
-                rm = rm.open_resource('USB0::0xB506::0x2000::002730::INSTR', read_termination='\n')
+                self.rm = pyvisa.ResourceManager()
+                self.rm = self.rm.open_resource('USB0::0xB506::0x2000::002730::INSTR', read_termination='\n')
             except pyvisa.VisaIOError:
                 messagebox.showinfo('Error', 'Lock-In not found')
             else:
-                global ds
-                ds = Detection_synchrone(rm)
+                self.ds = Detection_synchrone(self.rm)
                 self.onOffLockin['bg'] = 'green'
                 self.onOffLockin['text'] = 'Activated'
                 self.applyLockin['state'] = NORMAL
@@ -297,7 +289,7 @@ class Interface:
                 self.currentMode['state'] = NORMAL
                 self.source['state'] = NORMAL
         else:
-            rm.close()
+            self.rm.close()
             self.onOffLockin['bg'] = 'red'
             self.onOffLockin['text'] = 'Deactivated'
             self.applyLockin['state'] = DISABLED
@@ -325,10 +317,10 @@ class Interface:
         self.w9 = str(self.currentMode.get())
         self.w10 = str(self.source.get())
 
-        ds.lockin_set_freq(self.w2)
-        ds.lockin_time_const(self.w4)
-        ds.lockin_sensitivity(self.w5)
-        ds.initialize_lockin(harm=self.w3, current=self.w6, voltage=self.w8, current_mod=self.w9, source=self.w10,
+        self.ds.lockin_set_freq(self.w2)
+        self.ds.lockin_time_const(self.w4)
+        self.ds.lockin_sensitivity(self.w5)
+        self.ds.initialize_lockin(harm=self.w3, current=self.w6, voltage=self.w8, current_mod=self.w9, source=self.w10,
                              offset=self.w7, amp=self.w1)
         return
 
@@ -341,9 +333,13 @@ class Interface:
         self.ax.set_ylabel('Tension (mV)')
         self.ax.set_xlabel('Angle (°)')
 
-        while self.x <= self.v1:
+        self.board.initialisation(self.v1)
+        time.sleep(0.1)
+        self.board.sens_horaire2(self.v1, self.v2, 3*self.w4, self.v3)
+
+        while self.x <= 20:
             self.xs.append(float(self.x))
-            self.x, self.y = self.x + self.v2, rm.query(ds, 'OUTP? 2')
+            self.x, self.y = self.x + self.v2, self.rm.query(self.ds, 'OUTP? 2')
             self.ys.append(float(self.y))
             self.ax.plot(self.xs, self.ys, 'r.', linewidth=1)
             self.ax.grid(visible=True)
@@ -400,7 +396,7 @@ class Interface:
 
         fit, o = curve_fit(gaussienne, x, y)
 
-        self.ax.plot(x, gaussienne(x, fit[0], fit[1], fit[2]), 'b')
+        self.ax.plot(x, gaussienne(x, fit[0], fit[1], fit[2]), 'k')
         self.fig.savefig('courbe.png')
         self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
         self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
