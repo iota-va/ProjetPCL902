@@ -202,9 +202,6 @@ class Interface:
         return
 
     def ComChoice(self):
-
-        self.com = StringVar()
-
         self.comChoiceWindow = Toplevel(self.master)
 
         self.comChoiceWindow.geometry('200x100')
@@ -213,6 +210,9 @@ class Interface:
 
         self.comChoiceEntry = Entry(self.comChoiceWindow, justify='center', textvariable=self.com)
         self.comChoiceEntry.place(x=40, y=30)
+
+        self.com = StringVar()
+        self.com = str(self.comChoiceEntry.get())
 
         self.comChoiceButton = Button(self.comChoiceWindow, text='Apply', command=self.OnOffMotor)
         self.comChoiceButton.place(x=80, y=55)
