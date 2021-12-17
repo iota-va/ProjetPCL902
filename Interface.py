@@ -16,12 +16,14 @@ import pyfirmata
 from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib.pyplot as plt
+from threading import Thread
 import time
 
 
 class Interface:
 
     def __init__(self, master):
+        self.isInitialize = False
         self.master = master
         master.title('PCL902')
 
@@ -45,24 +47,20 @@ class Interface:
 
         # %% Motor :
 
-        self.v1, self.v2, self.v3 = StringVar(), StringVar(), StringVar()
+        self.v1, self.v2 = StringVar(), StringVar()
 
-        Label(self.tabMotor, text='Angle', font=24).place(x=150, y=80)
-        self.angle = Entry(self.tabMotor, state=DISABLED, textvariable=self.v1, justify='center', width=10, font=24)
-        self.angle.place(x=220, y=80, height=30)
+        Label(self.tabMotor, text='Half-range', font=24).place(x=120, y=120)
+        self.angle = Spinbox(self.tabMotor, state=DISABLED, textvariable=self.v1, values=('90', '45'), justify='center', width=10, font=24)
+        self.angle.place(x=220, y=120, height=30)
 
-        Label(self.tabMotor, text='Pas', font=24).place(x=160, y=180)
-        self.pas = Entry(self.tabMotor, state=DISABLED, textvariable=self.v2, justify='center', width=10, font=24)
-        self.pas.place(x=220, y=180, height=30)
-
-        Label(self.tabMotor, text="Step", font=24).place(x=155, y=280)
-        self.step = Entry(self.tabMotor, state=DISABLED, textvariable=self.v3, justify='center', width=10, font=24)
-        self.step.place(x=220, y=280, height=30)
+        Label(self.tabMotor, text='Step', font=24).place(x=160, y=220)
+        self.step = Spinbox(self.tabMotor, state=DISABLED, textvariable=self.v2, values=('100', '50', '25', '20', '10'), justify='center', width=10, font=24)
+        self.step.place(x=220, y=220, height=30)
 
         self.applyMotor = Button(self.tabMotor, text="Apply", state=DISABLED, command=self.Motor, width=20, height=5, font=24)
         self.applyMotor.place(x=300, y=400)
 
-        self.onOffMotor = Button(self.tabMotor, text='Deactivated', bg='red', command=self.ComChoice, width=20, height=5, font=24)
+        self.onOffMotor = Button(self.tabMotor, text='Deactivated', bg='red', command=self.OnOffMotor, width=20, height=5, font=24)
         self.onOffMotor.place(x=50, y=400)
 
         self.initMotor = Button(self.tabMotor, text='Initialisation', state=DISABLED, command=lambda: self.ButtonMotor(3), width=20, height=5, font=24)
@@ -144,7 +142,7 @@ class Interface:
 
         # %% Graphic
 
-        self.app3 = Button(self.tabGraph, text='Start', command= self.two_funcs(self.Graphic, self.MotorMovement), width=10, height=2, font=24)
+        self.app3 = Button(self.tabGraph, text='Start', command=self.Graphic, width=10, height=2, font=24)
         self.app3.place(x=10, y=10)
 
         self.app4 = Button(self.tabGraph, text='Curve Fit', command=self.CurveFit, width=10, height=2, font=24)
@@ -197,34 +195,14 @@ class Interface:
 
     def Motor(self):
         self.v1 = float(self.angle.get())
-        self.v2 = float(self.pas.get())
-        self.v3 = float(self.step.get())
-        return
-
-    def ComChoice(self):
-        self.comChoiceWindow = Toplevel(self.master)
-
-        self.comChoiceWindow.geometry('200x100')
-        self.comChoiceWindow.title('COM')
-        self.comChoiceWindow.resizable(width=False, height=False)
-
-        self.comChoiceEntry = Entry(self.comChoiceWindow, justify='center', textvariable=self.com)
-        self.comChoiceEntry.place(x=40, y=30)
-
-        self.com = StringVar()
-        self.com = str(self.comChoiceEntry.get())
-
-        self.comChoiceButton = Button(self.comChoiceWindow, text='Apply', command=self.OnOffMotor)
-        self.comChoiceButton.place(x=80, y=55)
-
+        self.v2 = float(self.step.get())
         return
 
     def OnOffMotor(self):
 
-        self.comChoiceWindow.destroy()
         if self.onOffMotor['bg'] == 'red':
             try:
-                self.arduino = pyfirmata.Arduino(self.com)
+                self.arduino = pyfirmata.Arduino('COM6')
             except:
                 messagebox.showinfo('Error', 'Arduino not found')
             else:
@@ -237,7 +215,6 @@ class Interface:
                 self.stepPlus['state'] = NORMAL
                 self.continueMinus['state'] = NORMAL
                 self.continuePlus['state'] = NORMAL
-                self.pas['state'] = NORMAL
                 self.step['state'] = NORMAL
                 self.angle['state'] = NORMAL
 
@@ -251,7 +228,6 @@ class Interface:
             self.stepPlus['state'] = DISABLED
             self.continueMinus['state'] = DISABLED
             self.continuePlus['state'] = DISABLED
-            self.pas['state'] = DISABLED
             self.step['state'] = DISABLED
             self.angle['state'] = DISABLED
         return
@@ -324,14 +300,10 @@ class Interface:
                              offset=self.w7, amp=self.w1)
         return
 
-    def MotorMovement(self):
-
-        self.board.initialisation(self.v1)
-        time.sleep(0.1)
-        self.board.sens_horaire2(self.v1, self.v2, 3 * self.w4, self.v3)
-        return
-
     def Graphic(self):
+
+        step = float(4)
+        pas = 2*self.v1/(0.9*self.v2)
 
         self.xs = []
         self.ys = []
@@ -340,14 +312,57 @@ class Interface:
         self.ax.set_ylabel('Tension (mV)')
         self.ax.set_xlabel('Angle (°)')
 
-        while self.board.isInitialize != True:
-            time.sleep(0.01)
+        self.board.initialisation(self.v1)
 
-        time.sleep(0.1)
+        while self.x <= self.v1-1:
+            if self.x == -self.v1:
+                self.xs.append(float(self.x))
+                self.y = self.rm.query('OUTP? 2')
+                self.ys.append(float(self.y))
+                self.ax.plot(self.xs, self.ys, 'r.', linewidth=1)
+                self.ax.grid(visible=True)
+                self.fig.savefig('courbe.png')
+                self.photo = PhotoImage(master=self.tabGraph, file='courbe.png')
+                self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
+                self.canvas.update()
 
-        while self.x <= 20:
+            for i in range(0, int(pas)):
+
+                if step - int(step) == 0:
+
+                    self.arduino.digital[int(step)].write(1)
+                    time.sleep(0.01)
+                    self.x = self.x + 0.9
+                    step = step + 0.5
+
+                    self.arduino.digital[int(step)].write(0)
+                    time.sleep(0)
+
+                else:
+                    if step != 7.5:
+                        self.arduino.digital[int(step)].write(1)
+                        self.arduino.digital[int(step) + 1].write(1)
+                        time.sleep(0.01)
+
+                        self.x = self.x + 0.9
+                        step = step + 0.5
+                        self.arduino.digital[int(step)].write(0)
+                        self.arduino.digital[int(step)-1].write(0)
+                        time.sleep(0)
+
+                    else:
+                        self.arduino.digital[int(step)].write(1)
+                        self.arduino.digital[4].write(1)
+                        time.sleep(0.01)
+
+                        self.x = self.x + 0.9
+                        step = 4.0
+                        self.arduino.digital[int(step)].write(0)
+                        self.arduino.digital[int(7.0)].write(0)
+                        time.sleep(0)
+
             self.xs.append(float(self.x))
-            self.x, self.y = self.x + self.v2, self.rm.query(self.ds, 'OUTP? 2')
+            self.y = self.rm.query('OUTP? 2')
             self.ys.append(float(self.y))
             self.ax.plot(self.xs, self.ys, 'r.', linewidth=1)
             self.ax.grid(visible=True)
@@ -358,7 +373,6 @@ class Interface:
             time.sleep(3 * self.w4)
 
         time.sleep(1)
-        self.board.isInitialize = False
         self.board.initialisation(self.v1)
         self.numberLines = len(self.xs)
         self.numberColumns = 2
@@ -451,12 +465,6 @@ class Interface:
         self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
         self.canvas.update()
         return
-
-    def two_funcs(self, *funcs):
-        def two_funcs(*args, **kwargs):
-            for f in funcs:
-                f(*args, **kwargs)
-        return two_funcs
 
 root = Tk()
 my_gui = Interface(root)

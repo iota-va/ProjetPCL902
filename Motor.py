@@ -46,12 +46,12 @@ class Motor :
 
 
 #%% fonction de balayage par pas(fct de mesure a placer)
-    def sens_horaire2(self, angle, pas, ti, step):  #pas variable et multiple de 0.9° -> il faut definir des angles multiples de 0.9°
+    def sens_horaire2(self, angle, pas, ti):  #pas variable et multiple de 0.9° -> il faut definir des angles multiples de 0.9°
         an = 0                                #ti=temps d'intégration (dépend de la constante de temps de la détection
         PAS = int(pas / 0.9)                  #step est la borne de départ
         ts = 0.01
         TS = 0
-        step = float(step)
+        step = float(4)
         while angle > an:                       #tant que l'angle parcourru n'a pas atteint la valeur souhaité
 
             time.sleep(ti)
@@ -96,7 +96,6 @@ class Motor :
 
 #%% fonction placement angle de départ de mesure
     def initialisation(self, ai):       #reprise de la fonction initialisation avec modif pour tourner dans le sens inverse
-        self.isInitialize = False
         an = 0
         step = float(4)
         while ai > an:
@@ -132,15 +131,15 @@ class Motor :
                     time.sleep(0)
                     an = an + 0.9
                     step = 7.5
-        return self.isInitialize == True
+        return
 
 
 
 #%%fonction de mesure complète (initialisation+sens_horaire2)
-    def mesure_auto(self,angle,pas, ti, step):
+    def mesure_auto(self,angle,pas, ti):
 
         self.initialisation(angle)
         time.sleep(0.1)
-        self.sens_horaire2(2*angle, pas, ti, step)
+        self.sens_horaire2(2*angle, pas, ti)
 
 #board.exit()  pour couper la liaison avec l'arduino -> une fois l'expérience finie

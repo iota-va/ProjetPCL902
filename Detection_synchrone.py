@@ -4,7 +4,6 @@ Created on Fri Sep  10 09:00:00 2021
 
 @author: ALFONSO Vincent
 """
-import pyvisa
 
 class Detection_synchrone :
 
