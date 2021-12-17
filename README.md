@@ -53,3 +53,5 @@ Pour régler cela, chercher `pyvisa.resources.resource.py` dans la librairie pyv
 `py_compile.compile("NOM_DU_FICHIER.py")`
 
 Après cela, mettre le fichier obtenu dans `library.zip`.
+
+**ATTENTION** : Vérifier le nom du port utilisé pour l'arduino et le changer si besoin à la ligne 205 du code `Interface.py`
