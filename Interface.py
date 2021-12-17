@@ -314,7 +314,7 @@ class Interface:
 
         self.board.initialisation(self.v1)
 
-        while self.x <= self.v1-1:
+        while self.x < self.v1-1:
             if self.x == -self.v1:
                 self.xs.append(float(self.x))
                 self.y = self.rm.query('OUTP? 2')
